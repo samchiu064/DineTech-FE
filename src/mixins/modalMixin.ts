@@ -1,18 +1,17 @@
-import { defineComponent } from "vue";
-import type { ModalMixinData, ModalMixinMethods } from "@/types/modalTypes";
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  data(): ModalMixinData {
+  data() {
     return {
-      showModal: false,
-    };
+      showModal: false
+    }
   },
   methods: {
-    open(this: ModalMixinData & ModalMixinMethods) {
-      this.showModal = true;
+    open() {
+      this.showModal = true
     },
-    close(this: ModalMixinData & ModalMixinMethods) {
-      this.showModal = false;
-    },
-  },
-});
+    close() {
+      this.showModal = false
+    }
+  }
+})
