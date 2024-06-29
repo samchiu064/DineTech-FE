@@ -10,6 +10,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "lib": ["ES6", "ES2016", "ES2017.string", "DOM"],
+    "lib": ["ES6", "ES2016", "ES2017.string", "DOM", "ES2019", "ES2020"],
   }
 }
