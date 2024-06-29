@@ -1,5 +1,5 @@
 <template>
-  <footer v-bind="$attrs" class="bg-secondary-black relative">
+  <footer class="bg-secondary-black relative">
     <div class="px-3 sm:px-10 lg:px-20 2xl:px-60 py-8 md:py-12">
       <div
         class="flex flex-col md:flex-row items-start md:items-center border-b border-gray-9f pb-1"
@@ -36,7 +36,7 @@
         <ul class="flex flex-col gap-1.5 md:gap-1 order-1 md:order-none">
           <li class="flex items-center gap-x-2.5">
             <span class="material-icons-outlined text-base md:text-2xl text-gray-d4">call</span>
-            <span class="text-sm text-gray-d4">02-272-0889</span>
+            <span class="text-sm text-gray-d4">00-000-0000</span>
           </li>
           <li class="flex items-center gap-x-2.5">
             <span class="material-icons-outlined text-base md:text-2xl text-gray-d4">mail</span>
@@ -46,7 +46,7 @@
             <span class="material-icons-outlined text-base md:text-2xl text-gray-d4">
               location_on
             </span>
-            <span class="text-sm text-gray-d4">台北市內湖區七賢路 123 號</span>
+            <span class="text-sm text-gray-d4">臺北市</span>
           </li>
         </ul>
       </div>
@@ -72,7 +72,6 @@ import { defineComponent } from 'vue'
 import ModalRoleSelection from '@/components/general/ModalRoleSelection.vue'
 
 export default defineComponent({
-  inheritAttrs: false,
   components: {
     ModalRoleSelection
   },

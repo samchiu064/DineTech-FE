@@ -47,11 +47,13 @@
             是一家正宗的義大利料理餐廳，由來自義大利的廚師親自烹調，提供多種美味的披薩、義大利麵等經典菜餚。店內裝潢精美，營造出優雅且放鬆的氛圍，是與家人、朋友一同品嚐義大利風味佳餚的絕佳選擇。
           </p>
           <div class="flex flex-row gap-x-3 max-w-3xl">
-            <router-link
+            <component
               v-for="role in roles"
               :key="role.name"
-              :to="{ path: role.path }"
-              class="flex flex-col w-1/2 gap-y-4 items-center border p-8 border-1 bg-secondary-white border-gray-d4 rounded-xl cursor-pointer hover:shadow-[0_4px_24px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition duration-300"
+              class="flex flex-col w-1/2 gap-y-4 items-center border p-8 border-1 bg-secondary-white border-gray-d4 rounded-xl hover:shadow-[0_4px_24px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition duration-300 relative"
+              :is="getComponentType(role)"
+              :to="getRolePath(role)"
+              @click="handleClick(role)"
             >
               <img :src="role.imageUrl" :alt="`系統展示 - ${role.name}端進入頁面`" />
               <p class="text-base md:text-lg font-bold">
@@ -59,7 +61,17 @@
                 <span class="text-primary-orange text-xl">{{ role.name }}</span>
                 體驗系統
               </p>
-            </router-link>
+              <div
+                v-if="role.disabled"
+                class="flex items-center rounded-lg text-white justify-center p-5 hover:backdrop-brightness-50 transition duration-300 absolute inset-0 cursor-pointer group"
+              >
+                <div
+                  class="opacity-0 group-hover:opacity-100 text-white border px-10 rounded-xl py-5 bg-primary select-none transition duration-300"
+                >
+                  馬上聯絡我們
+                </div>
+              </div>
+            </component>
           </div>
         </div>
       </div>
@@ -70,6 +82,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import FadeTransition from '@/components/client/FadeTransition.vue'
+
+type roles = {
+  name: string
+  path: string
+  imageUrl: string
+  disabled: boolean
+}
 
 export default defineComponent({
   components: {
@@ -82,12 +101,14 @@ export default defineComponent({
         {
           name: '顧客',
           path: '/client',
-          imageUrl: this.getImageUrl('home/home-demo-role-client.png')
+          imageUrl: this.getImageUrl('home/home-demo-role-client.png'),
+          disabled: false
         },
         {
           name: '店員',
           path: '/staff/login',
-          imageUrl: this.getImageUrl('home/home-demo-role-staff.png')
+          imageUrl: this.getImageUrl('home/home-demo-role-staff.png'),
+          disabled: true
         }
       ]
     }
@@ -108,6 +129,21 @@ export default defineComponent({
     // 取得圖片路徑
     getImageUrl(path: string) {
       return new URL(`../../assets/images/${path}`, import.meta.url).href
+    },
+    getComponentType(role: roles) {
+      return role.disabled ? 'div' : 'router-link'
+    },
+    getRolePath(role: roles) {
+      return role.disabled ? false : { path: role.path }
+    },
+    handleClick(role: roles) {
+      if (role.disabled) {
+        this.scrollToContactForm()
+      }
+    },
+    scrollToContactForm() {
+      this.close()
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
     }
   }
 })

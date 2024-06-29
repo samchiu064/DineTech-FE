@@ -13,7 +13,7 @@
           <p class="text-base md:text-lg font-bold">預約諮詢成功</p>
           <p class="text-sm md:text-base text-gray-9f text-center">
             感謝您的預約，我們的專員將在三個工作天內透過電話聯絡您。若需要更改預約資訊，請撥打
-            07-5301-6806
+            00-000-0000
           </p>
           <button
             type="button"

@@ -1,12 +1,11 @@
 <template>
   <header
-    v-bind="$attrs"
     :class="{ 'shadow-md': headerFixed }"
     class="header z-10 sticky top-0 bg-primary-bg transition-shadow duration-200"
   >
     <div class="sm:px-10 lg:px-20 2xl:px-60 mx-auto flex items-center h-[4.5rem]">
       <h1>
-        <a href="https://dinetech-frondend.onrender.com">
+        <a :href="baseUrl">
           <img
             src="@/assets/images/home/home-header-logo.svg"
             alt="DineTech 餐飲 iPad POS 點餐系統 Logo"
@@ -46,13 +45,17 @@ import { debounce } from 'lodash'
 import ModalRoleSelection from '@/components/general/ModalRoleSelection.vue'
 
 export default defineComponent({
-  inheritAttrs: false,
   components: {
     ModalRoleSelection
   },
   data() {
     return {
       headerFixed: false
+    }
+  },
+  computed: {
+    baseUrl() {
+      return import.meta.env.VITE_APP_URL
     }
   },
   mounted() {

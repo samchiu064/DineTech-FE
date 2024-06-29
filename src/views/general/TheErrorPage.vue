@@ -4,7 +4,7 @@
   >
     <div class="px-4 sm:px-10 lg:px-20 2xl:px-60 mx-auto flex items-center h-16 h-[4.5rem]">
       <h1>
-        <a href="https://dinetech-frondend.onrender.com">
+        <a :href="baseUrl">
           <img
             src="@/assets/images/home/home-header-logo.svg"
             alt="DineTech 餐飲 iPad POS 點餐系統 Logo"
@@ -28,7 +28,7 @@
             請點擊下方按鈕回到首頁
           </p>
           <a
-            href="https://dinetech-frondend.onrender.com"
+            :href="baseUrl"
             class="inline-flex items-center space-x-2.5 py-2.5 px-8 bg-primary-orange text-white rounded-md hover:opacity-90 ease-in duration-50 mt-3 md:mt-5"
           >
             <span class="font-bold">返回首頁</span>
@@ -50,6 +50,11 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   data() {
     return {}
+  },
+  computed: {
+    baseUrl() {
+      return import.meta.env.VITE_APP_URL
+    }
   },
   methods: {
     // 判斷是否為手機裝置

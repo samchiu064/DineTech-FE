@@ -1,18 +1,19 @@
 <template>
   <header
-    v-bind="$attrs"
     :class="{ 'shadow-md': headerFixed }"
     class="header z-10 sticky top-0 bg-primary-bg transition-shadow duration-200"
   >
     <div class="flex items-center justify-between h-16 px-4 mx-auto">
       <h1>
-        <img
-          src="@/assets/images/home/home-header-logo.svg"
-          alt="DineTech 餐飲 iPad POS 點餐系統 Logo"
-          class="h-7"
-        />
+        <a :href="baseUrl">
+          <img
+            src="@/assets/images/home/home-header-logo.svg"
+            alt="DineTech 餐飲 iPad POS 點餐系統 Logo"
+            class="h-7"
+          />
+        </a>
       </h1>
-      <button ref="menuButton" type="button" class="relative group" @click="toggleMenu">
+      <button ref="menuButton" type="button" class="relative groups" @click="toggleMenu">
         <div
           :class="{ 'h-6': menuExpanded }"
           class="flex flex-col justify-between w-6 h-4 transform transition-transform duration-300 origin-center overflow-hidden"
@@ -82,7 +83,6 @@ import { debounce } from 'lodash'
 import ModalRoleSelection from '@/components/general/ModalRoleSelection.vue'
 
 export default defineComponent({
-  inheritAttrs: false,
   components: {
     ModalRoleSelection
   },
@@ -96,6 +96,9 @@ export default defineComponent({
     // 選單高度
     menuHeight() {
       return this.menuExpanded ? 'h-[calc(100vh-64px)]' : 'h-0'
+    },
+    baseUrl() {
+      return import.meta.env.VITE_APP_URL
     }
   },
   mounted() {
