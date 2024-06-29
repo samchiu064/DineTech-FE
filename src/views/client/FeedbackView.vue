@@ -31,7 +31,7 @@
           <div class="text-base mb-5 items-center">
             <div class="mb-3 mt-2">意見回饋</div>
             <textarea
-              v-model="form.feedback"
+              v-model="form.comment"
               rows="3"
               class="block px-4 py-2 w-full placeholder:text-gray-d4 border border-gray-d4 rounded-md focus:ring-primary-orange focus:border-primary-orange"
             >
@@ -74,33 +74,34 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { apiPostFeedback } from '@/apis/client'
+import { apiCreateFeedback } from '@/apis/client'
 import { useClientStore } from '@/stores/clientStore'
-import { mapActions } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 
 export default defineComponent({
   data() {
     return {
       isOpen: false,
       form: {
-        quality: 0,
-        process: 0,
-        speed: 0,
-        flavor: 0,
-        price: 0,
-        sanitation: 0,
-        impress: 0,
-        feedback: ''
+        guestId: '',
+        service: null,
+        flow: null,
+        speed: null,
+        flavor: null,
+        price: null,
+        sanitation: null,
+        impression: null,
+        comment: ''
       } as any,
       satisfaction: ['非常滿意', '滿意', '普通', '不滿意', '非常不滿意'],
       radioFields: [
         {
           label: '服務品質',
-          field: 'quality'
+          field: 'service'
         },
         {
           label: '點餐流程',
-          field: 'process'
+          field: 'flow'
         },
         {
           label: '出餐速度',
@@ -120,9 +121,20 @@ export default defineComponent({
         },
         {
           label: '整體印象',
-          field: 'impress'
+          field: 'impression'
         }
       ]
+    }
+  },
+  computed: {
+    ...mapState(useClientStore, ['guestId'])
+  },
+  watch: {
+    guestId: {
+      immediate: true,
+      handler() {
+        this.form.guestId = this.guestId
+      }
     }
   },
   methods: {
@@ -135,7 +147,7 @@ export default defineComponent({
     },
     async submitForm() {
       try {
-        await apiPostFeedback(this.form)
+        await apiCreateFeedback(this.form)
       } catch (error) {
         console.error(error)
       }

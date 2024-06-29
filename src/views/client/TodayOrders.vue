@@ -14,18 +14,18 @@
               <th class="text-start">餐點項目</th>
               <th>數量</th>
               <th>金額</th>
-              <th>狀態</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="align-top border-b" v-for="item in orderList" :key="item._id">
+            <tr class="align-top border-b" v-for="item in flattenedOrderList" :key="item._id">
               <td class="text-start py-2">
-                <p>{{ item.name }}</p>
-                <p class="text-gray-9f text-sm">{{ handleCustomization(item.cust) }}</p>
+                <p>{{ item.menuId?.name }}</p>
+                <p class="text-gray-9f text-sm">
+                  {{ item.toppings.map((topping) => topping.name).join('/') }}
+                </p>
               </td>
-              <td class="py-2">X {{ item.number }}</td>
+              <td class="py-2">X {{ item.quantity }}</td>
               <td class="py-2">$ {{ handlePrice(item.total_price) }}</td>
-              <td class="py-2">{{ item.finished ? '已送達' : '準備中' }}</td>
             </tr>
           </tbody>
         </table>
@@ -39,53 +39,43 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { apiGetTodayOrders } from '@/apis/client'
-import { mapState, mapActions } from 'pinia'
+import { apiGetOrder } from '@/apis/client'
+import { mapState } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
-import type { TempOption } from '@/types/mealTypes'
-import type { OrderList } from '@/types/orderTypes'
 import { formatPriceToTWD } from '@/utils'
+import type { ITodayOrder } from '@/interfaces'
 
 export default defineComponent({
   data() {
     return {
-      orderList: [] as OrderList
+      orderList: [] as ITodayOrder[]
     }
   },
   computed: {
-    ...mapState(useClientStore, ['tempTableId']),
-    totalPrice(): number {
-      return this.orderList.reduce((acc, cur) => acc + cur.total_price, 0)
+    ...mapState(useClientStore, ['guestId']),
+    flattenedOrderList() {
+      return this.orderList.flatMap((order) =>
+        order.items.map((item) => ({
+          ...item
+        }))
+      )
     }
   },
   methods: {
-    ...mapActions(useClientStore, ['setOrdersTotal']),
-    backToMainMenu() {
-      this.$router.push({ path: '/client/main-menu' })
-    },
     async getTodayOrders() {
       try {
-        const { data } = await apiGetTodayOrders(this.tempTableId)
-        this.orderList = this.flattenNestedArray(data.data)
-        this.setOrdersTotal(this.totalPrice)
+        const { data: origin } = await apiGetOrder(this.guestId)
+        const { data } = origin
+        this.orderList = data
       } catch (err) {
         console.error(err)
       }
     },
-    flattenNestedArray<T>(nestedArray: T[]): T[] {
-      return nestedArray.reduce((flattenedArray: T[], currentItem: T) => {
-        if (Array.isArray(currentItem)) {
-          return flattenedArray.concat(this.flattenNestedArray(currentItem))
-        } else {
-          return flattenedArray.concat(currentItem)
-        }
-      }, [])
+    backToMainMenu() {
+      this.$router.push({ path: '/client/main-menu' })
     },
     handlePrice(price: number): string {
       return formatPriceToTWD(price)
-    },
-    handleCustomization(cust: TempOption[]): string {
-      return cust.map((option: TempOption) => option.name).join(' / ')
     }
   },
   created() {

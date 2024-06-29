@@ -1,20 +1,35 @@
-import axios from 'axios';
-import type { CartEditItem, CartItemId } from '@/types/cartTypes';
-import type { PostOrder, PostGuest } from '@/types/orderTypes';
-import type { PostFeedback } from '@/types/feedbackTypes';
-import type { MealPayload } from '@/types/mealTypes';
+import axios from 'axios'
+import type { AxiosResponse } from 'axios'
+import type { IGuest, IOrder, IFeedback } from '@/interfaces'
 
 const clientRequest = axios.create({
-  baseURL: `${import.meta.env.VITE_APP_API}/cust/`,
+  baseURL: `${import.meta.env.VITE_APP_API}/`
 })
 
-export const apiGetMenu = () => clientRequest.get('menu');
-export const apiGetMenuById = (id: string) => clientRequest.get(`menu/${id}`);
-export const apiPostGuest = (payload: PostGuest) => clientRequest.post('guest', payload);
-export const apiGetCart = (order_id: string) => clientRequest.get(`cart/${order_id}`);
-export const apiPostCart = (payload: MealPayload) => clientRequest.post('cart', payload);
-export const apiPatchCart = (payload: CartEditItem) => clientRequest.patch('cart', payload);
-export const apiDeleteCart = (payload: CartItemId) => clientRequest.delete('cart', { data: payload});
-export const apiPostOrder = (payload: PostOrder) => clientRequest.post('order', payload);
-export const apiGetTodayOrders = (table_id: Number) => clientRequest.get(`cart/details/${table_id}`);
-export const apiPostFeedback = (payload: PostFeedback) => clientRequest.post('feedback', payload);
+export const apiGetMenu = async ({
+  category,
+  id
+}: { category?: string; id?: string } = {}): Promise<AxiosResponse> => {
+  const endpoint = id ? `menus/${id}` : 'menus/'
+  const params = category ? { category } : undefined
+
+  return await clientRequest.get(endpoint, { params })
+}
+export const apiCreateGuest = (payload: IGuest): Promise<AxiosResponse> =>
+  clientRequest.post('guests', payload)
+
+export const apiGetTopping = (category?: string): Promise<AxiosResponse> => {
+  const params = category ? { category } : undefined
+  return clientRequest.get('toppings', { params })
+}
+
+export const apiGetOrder = (guestId?: string): Promise<AxiosResponse> => {
+  const params = guestId ? { guestId } : undefined
+  return clientRequest.get('orders', { params })
+}
+
+export const apiCreateOrder = (payload: IOrder): Promise<AxiosResponse> =>
+  clientRequest.post('orders', payload)
+
+export const apiCreateFeedback = (payload: IFeedback): Promise<AxiosResponse> =>
+  clientRequest.post('feedbacks', payload)

@@ -1,7 +1,6 @@
 <template>
   <div
-    v-if="meal.number > 0"
-    v-bind="$attrs"
+    v-if="meal.quantity > 0"
     class="flex justify-between gap-x-1 py-1.5 px-2 bg-gray-e9 rounded-md"
     @click="handleClick"
   >
@@ -10,7 +9,7 @@
       <span class="text-sm text-gray-9f truncate empty:hidden">{{ customization }}</span>
     </div>
     <div class="flex justify-between gap-x-3">
-      <span class="text-base">X {{ meal.number }}</span>
+      <span class="text-base">X {{ meal.quantity }}</span>
       <span class="text-base">$ {{ dollar }}</span>
       <button v-if="!isEditing" type="button" class="text-lg" @click.stop="deleteItem(meal._id)">
         <span class="material-icons-outlined text-secondary-red">close</span>
@@ -42,15 +41,13 @@ import { defineComponent } from 'vue'
 import { mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
-import type { MealPayload } from '@/types/mealTypes'
-import { apiDeleteCart, apiGetMenuById } from '@/apis/client'
+import type { ICartMeal } from '@/interfaces'
 
 export default defineComponent({
-  inheritAttrs: false,
   props: {
     meal: {
-      type: Object,
-      default: () => ({} as MealPayload)
+      type: Object as () => ICartMeal,
+      default: () => ({})
     }
   },
   data() {
@@ -63,45 +60,22 @@ export default defineComponent({
       return formatPriceToTWD(this.meal.total_price)
     },
     customization(): string {
-      return this.meal.cust?.map((option: MealPayload) => option.name).join(' / ')
+      const topping = this.meal.toppings
+        .map((topping: { name: string; price: number }) => topping.name)
+        .join('/')
+      return this.meal.flavour + (topping ? `/${topping}` : '')
     }
   },
   methods: {
-    ...mapActions(useClientStore, ['setTempMeal', 'getCart', 'setTempEditCartItem']),
+    ...mapActions(useClientStore, ['removeCartItem']),
     async handleClick() {
       if (this.isEditing) return
-
-      this.isEditing = true
-
-      await this.updateTempMeal()
       this.$emit('click:list')
-
-      this.isEditing = false
     },
-    async updateTempMeal() {
-      try {
-        const { data } = await apiGetMenuById(this.meal.product_id)
-        const meal = data.data_item?.pop()
-        this.setTempMeal({ ...meal, _id: this.meal._id })
-        this.setTempEditCartItem({
-          edit_id: this.meal._id,
-          number: this.meal.number,
-          total_price: this.meal.total_price,
-          cust: this.meal.cust
-        })
-      } catch (err) {
-        console.error(err)
-      }
-    },
-    async deleteItem(mealId: string) {
+    deleteItem(mealId: string) {
       this.isEditing = true
 
-      try {
-        await apiDeleteCart({ edit_id: mealId })
-        this.getCart()
-      } catch (err) {
-        console.error(err)
-      }
+      this.removeCartItem(mealId)
 
       setTimeout(() => {
         this.isEditing = false

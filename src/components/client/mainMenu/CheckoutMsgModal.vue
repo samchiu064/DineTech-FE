@@ -34,10 +34,11 @@
 import { defineComponent } from 'vue'
 import CheckoutModal from './CheckoutModal.vue'
 import modalMixin from '@/mixins/modalMixin'
-import { apiGetTodayOrders } from '@/apis/client'
+import { apiGetOrder } from '@/apis/client'
 import { mapState, mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import FadeTransition from '@/components/client/FadeTransition.vue'
+import type { IOrder, ITodayOrder } from '@/interfaces'
 
 export default defineComponent({
   inheritAttrs: false,
@@ -45,29 +46,32 @@ export default defineComponent({
     CheckoutModal,
     FadeTransition
   },
+  data() {
+    return {
+      orderList: [] as ITodayOrder[]
+    }
+  },
   mixins: [modalMixin],
   computed: {
-    ...mapState(useClientStore, ['tempTableId'])
+    ...mapState(useClientStore, ['guestId']),
+    totalPrice() {
+      return this.orderList.reduce((acc: number, cur: IOrder) => acc + cur.total, 0)
+    }
   },
   methods: {
-    ...mapActions(useClientStore, ['setOrdersTotal']),
+    ...mapActions(useClientStore, ['setOrderTotal']),
     async checkout() {
-      await this.getTotalPriceOfToday()
-      this.close()
-      ;(this.$refs.checkoutModal as typeof CheckoutModal).open()
-    },
-    async getTotalPriceOfToday() {
       try {
-        const { data } = await apiGetTodayOrders(this.tempTableId)
-        const totalPrice = data.data.reduce((acc: number, cur: any) => {
-          const arrayTotal = cur.reduce((acc: number, obj: any) => acc + obj.total_price, 0)
-          return acc + arrayTotal
-        }, 0)
-
-        this.setOrdersTotal(totalPrice)
+        const { data: origin } = await apiGetOrder(this.guestId)
+        const { data } = origin
+        this.orderList = data
+        this.setOrderTotal(this.totalPrice)
       } catch (err) {
         console.error(err)
       }
+
+      this.close()
+      ;(this.$refs.checkoutModal as typeof CheckoutModal).open()
     }
   }
 })

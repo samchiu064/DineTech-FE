@@ -44,12 +44,11 @@ import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
 
 export default defineComponent({
-  inheritAttrs: false,
   mixins: [modalMixin],
   computed: {
-    ...mapState(useClientStore, ['ordersTotal']),
+    ...mapState(useClientStore, ['orderTotal']),
     dollar() {
-      return formatPriceToTWD(this.ordersTotal)
+      return formatPriceToTWD(this.orderTotal)
     }
   },
   methods: {

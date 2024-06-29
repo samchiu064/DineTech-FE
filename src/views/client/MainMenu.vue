@@ -9,12 +9,15 @@
               v-for="meal in menu"
               :key="meal._id"
               :meal="meal"
-              @click="openMealModal('add')"
+              @click:card="openMealModal('add', meal._id)"
             />
           </div>
         </main>
       </fade-transition>
-      <MenuSidebar class="w-[340px]" @click:list="openMealModal('edit')" />
+      <MenuSidebar
+        class="w-[340px]"
+        @click:list="(cartItemId) => openMealModal('edit', cartItemId)"
+      />
     </div>
   </div>
   <fade-transition>
@@ -25,14 +28,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState, mapWritableState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import CheckInForm from '@/components/client/mainMenu/CheckInForm.vue'
 import MenuHeader from '@/components/client/mainMenu/MenuHeader.vue'
 import MenuSidebar from '@/components/client/mainMenu/MenuSidebar.vue'
 import MealCard from '@/components/client/mainMenu/MealCard.vue'
-import { apiGetMenu } from '@/apis/client'
-import type { Menu } from '@/types/menuTypes'
+import { apiGetMenu, apiGetTopping } from '@/apis/client'
+import type { IMeal } from '@/interfaces'
 import MealModal from '@/components/client/mainMenu/MealModal.vue'
 import FadeTransition from '@/components/client/FadeTransition.vue'
 
@@ -47,49 +50,76 @@ export default defineComponent({
   },
   data() {
     return {
-      origin: [] as Menu,
-      menu: [] as Menu
+      origin: [] as IMeal[],
+      menu: [] as IMeal[]
     }
   },
   computed: {
-    ...mapState(useClientStore, ['isCheckIn']),
-    ...mapWritableState(useClientStore, ['sidebarExpand'])
+    ...mapState(useClientStore, ['isCheckIn', 'tempCart']),
   },
   methods: {
+    ...mapActions(useClientStore, ['setTempMeal', 'setTempToppings']),
     setMenu(category: string) {
-      switch (category) {
-        case '主餐':
-          this.menu = this.origin.filter(
-            (item) => item.category === 'risotto' || item.category === 'pasta'
-          )
-          break
-        case '甜點':
-          this.menu = this.origin.filter((item) => item.category === 'dessert')
-          break
-        case '飲料':
-          this.menu = this.origin.filter((item) => item.category === 'drink')
-          break
-        default:
-          this.menu = this.origin
-          break
+      const categoryMap: Record<string, string[]> = {
+        主餐: ['rice', 'pasta'],
+        甜點: ['dessert'],
+        飲料: ['beverage']
+      }
+
+      if (category in categoryMap) {
+        this.menu = this.origin.filter((item) => categoryMap[category].includes(item.category))
+      } else {
+        this.menu = this.origin
       }
     },
     async getMenu() {
       try {
         const { data } = await apiGetMenu()
-        this.origin = data.data_item
+        this.origin = [...data.data]
         this.setMenu('主餐')
       } catch (err) {
         console.error(err)
       }
     },
-    openMealModal(type: string) {
+    async getTopping(category: string) {
+      try {
+        const { data } = await apiGetTopping(category)
+        return data.data
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    async openMealModal(type: string, id?: string) {
+      try {
+        let meal
+        if (type === 'edit') {
+          meal = this.tempCart.find((item) => item._id === id)
+        } else if (type === 'add') {
+          const { data } = await apiGetMenu({ id })
+          meal = data.data
+        }
+
+        if (!meal) return
+
+        await this.prepareMealModal(meal, type)
+      } catch (error) {
+        console.error('Failed to open meal modal:', error)
+      }
+    },
+    async prepareMealModal(meal: IMeal, type: string) {
+      this.setTempMeal(meal)
+
+      const toppings = await this.getTopping(meal.category)
+      this.setTempToppings(toppings)
+
+      this.openModal(type)
+    },
+    openModal(type: string) {
       ;(this.$refs.mealModal as typeof MealModal).open(type)
     }
   },
   created() {
     this.getMenu()
-    this.sidebarExpand = false
   }
 })
 </script>

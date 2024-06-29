@@ -1,94 +1,97 @@
 import { defineStore } from 'pinia'
-import type { TempMeal } from '@/types/mealTypes'
-import type { OrderStatus, PostGuest } from '@/types/orderTypes'
-import type { CartEditItem, TempCart } from '@/types/cartTypes'
-import { apiPostGuest, apiGetCart } from '@/apis/client'
+import { apiCreateGuest } from '@/apis/client'
+import type { IMeal, IGuest, ICartMeal, ITopping } from '@/interfaces'
 
 export const useClientStore = defineStore('client', {
   state: () => {
     return {
-      tempOrderId: '',
-      tempTableId: 0,
-      tempMeal: {} as TempMeal,
-      tempCart: [] as TempCart,
-      tempEditCartItem: {} as CartEditItem,
-      orderStatus: 'notYetOrdered' as OrderStatus,
-      ordersTotal: 0,
-      sidebarExpand: false
+      guestId: '',
+      sidebarExpanded: false,
+      isCheckIn: false,
+      tempMeal: {} as IMeal | ICartMeal,
+      tempToppings: [] as ITopping[],
+      tempCart: [] as ICartMeal[],
+      orderStatus: '',
+      orderTotal: 0
     }
   },
   persist: {
     storage: sessionStorage,
-    paths: ['tempOrderId', 'tempTableId', 'tempCart', 'orderStatus', 'ordersTotal', 'sidebarExpand']
+    paths: [
+      'guestId',
+      'sidebarExpanded',
+      'isCheckIn',
+      'tempMeal',
+      'tempCart',
+      'orderStatus',
+      'orderTotal'
+    ]
   },
   getters: {
-    menuOrderMessage(state) {
-      switch (state.orderStatus) {
-        case 'notYetOrdered':
-          return '您尚未點餐'
-        case 'preparing':
-          return '餐點製作中'
-        case 'canceled':
-          return '餐點已取消'
-        case 'delivered':
-          return '餐點已送達'
-        case 'checkout':
-          return '訂單結帳中'
-        case 'completed':
-          return '訂單已完成'
-        default:
-          return '系統維護中'
-      }
-    },
-    isEmptyCart(state) {
-      return state.tempCart.length === 0
-    },
-    isCheckIn(state) {
-      return state.tempTableId !== 0
+    isEmptyCart(): boolean {
+      return this.tempCart.length === 0
     }
   },
   actions: {
-    setOrderStatus(status: OrderStatus) {
-      this.orderStatus = status
-    },
-    setTempMeal(meal: TempMeal) {
-      this.tempMeal = meal
-    },
-    setTempEditCartItem(item: CartEditItem) {
-      this.tempEditCartItem = item
-    },
-    setTempOrderId(id: string) {
-      this.tempOrderId = id
-    },
-    setOrdersTotal(total: number) {
-      this.ordersTotal = total
-    },
     toggleSidebar() {
-      this.sidebarExpand = !this.sidebarExpand
+      this.sidebarExpanded = !this.sidebarExpanded
     },
-    async getCustomerId(payload: PostGuest) {
-      const { data } = await apiPostGuest(payload)
-      this.tempOrderId = data.data.order_id
-      this.tempTableId = data.data.table_id
-    },
-    async getCart() {
-      const { data } = await apiGetCart(this.tempOrderId)
-      this.tempCart = data.data
+    async checkIn(form: IGuest) {
+      try {
+        const { data: origin } = await apiCreateGuest(form)
+        const { data } = origin
+        this.guestId = data.id
+      } catch (error) {
+        console.error(error)
+      }
+
+      this.isCheckIn = true
     },
     resetTempMeal() {
-      this.tempMeal = {} as TempMeal
+      this.tempMeal = {} as IMeal
+    },
+    addToCart(form: ICartMeal) {
+      this.tempCart.push(form)
+      if (!this.sidebarExpanded) this.sidebarExpanded = true
+    },
+    updateCart(id: string, form: ICartMeal) {
+      const index = this.tempCart.findIndex((item) => item._id === id)
+      this.tempCart[index] = form
+    },
+    removeCartItem(id: string) {
+      const index = this.tempCart.findIndex((item) => item._id === id)
+      this.tempCart.splice(index, 1)
+    },
+    clearCart() {
+      this.tempCart = [] as ICartMeal[]
+    },
+    setTempMeal(meal: IMeal | ICartMeal) {
+      this.tempMeal = meal
+    },
+    setOrderStatus(status: string) {
+      this.orderStatus = status
     },
     resetTempData() {
-      this.tempMeal = {} as TempMeal
-      this.tempCart = [] as TempCart
-      this.tempEditCartItem = {} as CartEditItem
+      this.tempMeal = {} as IMeal
+      this.tempCart = [] as ICartMeal[]
+      this.tempToppings = [] as ITopping[]
+      this.orderStatus = ''
+    },
+    setOrderTotal(total: number) {
+      this.orderTotal = total
+    },
+    setTempToppings(toppings: ITopping[]) {
+      this.tempToppings = toppings
+    },
+    resetTempToppings() {
+      this.tempToppings = [] as ITopping[]
     },
     resetState() {
-      this.tempOrderId = ''
-      this.tempTableId = 0
-      this.orderStatus = 'notYetOrdered'
-      this.ordersTotal = 0
-      this.sidebarExpand = false
+      this.guestId = ''
+      this.sidebarExpanded = false
+      this.isCheckIn = false
+      this.orderTotal = 0
+      this.resetTempData()
     }
   }
 })

@@ -1,7 +1,7 @@
 <template>
   <Transition name="slide">
     <div
-      v-show="sidebarExpand"
+      v-show="sidebarExpanded"
       v-bind="$attrs"
       class="flex flex-col bg-secondary-white pt-4 px-5 relative z-30"
     >
@@ -39,7 +39,7 @@
               v-for="meal in tempCart"
               :key="meal._id"
               :meal="meal"
-              @click:list="$emit('click:list')"
+              @click:list="$emit('click:list', meal._id)"
             />
           </TransitionGroup>
         </div>
@@ -73,7 +73,7 @@
           :isLoading="buttonIsLoading"
           type="button"
           class="w-full py-4 px-6 rounded-md bg-primary-orange text-secondary-white flex justify-center items-center gap-x-2"
-          @click="sendOrder"
+          @click="createOrder"
         >
           <span class="material-icons-outlined text-secondary-white text-2xl leading-none"
             >shopping_cart</span
@@ -91,7 +91,7 @@
     </div>
   </Transition>
   <fade-transition duration="0.2s">
-    <MenuIconBar v-show="!sidebarExpand" />
+    <MenuIconBar v-show="!sidebarExpanded" />
   </fade-transition>
   <CheckoutMsgModal ref="checkoutMsgModal" />
 </template>
@@ -101,7 +101,7 @@ import { defineComponent } from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
-import { apiPostOrder } from '@/apis/client'
+import { apiCreateOrder } from '@/apis/client'
 import MealList from './MealList.vue'
 import CheckoutMsgModal from '@/components/client/mainMenu/CheckoutMsgModal.vue'
 import MenuIconBar from '@/components/client/mainMenu/MenuIconBar.vue'
@@ -124,11 +124,10 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useClientStore, [
-      'isEmptyCart',
-      'sidebarExpand',
+      'sidebarExpanded',
       'tempCart',
-      'tempOrderId',
-      'tempTableId',
+      'guestId',
+      'isEmptyCart',
       'orderStatus'
     ]),
     totalPrice(): string {
@@ -138,32 +137,40 @@ export default defineComponent({
       return formatPriceToTWD(this.tempCart.reduce((acc, cur) => acc + cur.total_price, 0) * 0.1)
     },
     summaryPrice(): string {
-      return formatPriceToTWD(this.tempCart.reduce((acc, cur) => acc + cur.total_price, 0) * 1.1)
+      const price = this.tempCart.reduce((acc, cur) => acc + cur.total_price, 0) * 1.1
+      return formatPriceToTWD(Math.floor(price))
     }
   },
   methods: {
-    ...mapActions(useClientStore, [
-      'toggleSidebar',
-      'setOrderStatus',
-      'resetTempData',
-      'setTempOrderId',
-      'setOrdersTotal'
-    ]),
+    ...mapActions(useClientStore, ['toggleSidebar', 'setOrderStatus', 'resetTempData']),
     async checkOut() {
       ;(this.$refs.checkoutMsgModal as typeof CheckoutMsgModal).open()
     },
-    async sendOrder() {
+    async createOrder() {
       this.buttonIsLoading = true
 
-      const { data } = await apiPostOrder({
-        order_id: this.tempOrderId,
-        table_id: this.tempTableId
-      })
+      const items = this.tempCart.map((item) => ({
+        menuId: item.menuId,
+        quantity: item.quantity,
+        flavour: item.flavour,
+        toppings: item.toppings,
+        total_price: item.total_price
+      }))
 
-      this.buttonIsLoading = false
-      this.setTempOrderId(data.data.new_order_id)
-      this.setOrderStatus('preparing')
-      this.resetTempData()
+      try {
+        await apiCreateOrder({
+          guestId: this.guestId,
+          items,
+          total: this.tempCart.reduce((acc, cur) => acc + cur.total_price, 0)
+        })
+
+        this.setOrderStatus('preparing')
+        this.resetTempData()
+      } catch (err) {
+        console.error(err)
+      } finally {
+        this.buttonIsLoading = false
+      }
     },
     toTodayOrderPage() {
       this.$router.push({ path: '/client/today-orders' })

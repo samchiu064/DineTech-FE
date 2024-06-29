@@ -1,8 +1,9 @@
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router'
+import { useClientStore } from '@/stores/clientStore'
 
 /**
  * 顧客端路由
- * 
+ *
  * @type {RouteRecordRaw}
  * @property {string} path - 路由路徑
  * @property {string} name - 路由名稱
@@ -20,15 +21,15 @@ const clientRoutes: RouteRecordRaw = {
       name: 'clientLandingView',
       component: () => import('@/views/client/LandingView.vue'),
       meta: {
-        title: '莉莉貝拉維塔義式餐廳',
-      },
+        title: '莉莉貝拉維塔義式餐廳'
+      }
     },
     {
       path: 'main-menu',
       name: 'clientMainMenu',
       component: () => import('@/views/client/MainMenu.vue'),
       meta: {
-        title: '主選單',
+        title: '主選單'
       }
     },
     {
@@ -36,7 +37,7 @@ const clientRoutes: RouteRecordRaw = {
       name: 'clientTodayOrders',
       component: () => import('@/views/client/TodayOrders.vue'),
       meta: {
-        title: '今日訂單明細',
+        title: '今日訂單明細'
       }
     },
     {
@@ -44,10 +45,19 @@ const clientRoutes: RouteRecordRaw = {
       name: 'clientFeedback',
       component: () => import('@/views/client/FeedbackView.vue'),
       meta: {
-        title: '意見回饋',
+        title: '意見回饋'
+      },
+      beforeEnter: (to, from, next) => {
+        const store = useClientStore();
+    
+        if (!store.guestId) {
+          next('/client');
+        } else {
+          next();
+        }
       }
     }
-  ],
-};
+  ]
+}
 
-export default clientRoutes;
+export { clientRoutes }

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isCheckIn" class="flex items-center justify-center absolute inset-0 bg-primary-bg">
+  <div class="flex items-center justify-center absolute inset-0 bg-primary-bg">
     <Loading
       v-model:active="isLoading"
       :can-cancel="true"
@@ -124,12 +124,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { useStatusStore } from '@/stores/statusStore'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/css/index.css'
-import { mapWritableState, mapState } from 'pinia'
+import { mapWritableState, mapActions } from 'pinia'
 
 export default defineComponent({
   inheritAttrs: false,
@@ -145,18 +144,14 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapWritableState(useStatusStore, ['isLoading']),
-    ...mapState(useClientStore, ['isCheckIn'])
+    ...mapWritableState(useStatusStore, ['isLoading'])
   },
   methods: {
-    ...mapActions(useClientStore, ['getCustomerId']),
+    ...mapActions(useClientStore, ['checkIn']),
     // 送出表單
     async submitForm() {
       this.isLoading = true
-
-      await this.getCustomerId(this.form)
-      this.$emit('submit:checkIn', this.form)
-
+      this.checkIn(this.form)
       this.isLoading = false
     },
     // 回到進入頁
@@ -170,16 +165,21 @@ export default defineComponent({
     // 取得時間
     getTime(h: number = 0, m: number = 0) {
       const now = new Date()
-      const hour = now.getHours() + h
-      const minute = now.getMinutes() + m
+      const totalMinutes = now.getMinutes() + m
+      const extraHours = Math.floor(totalMinutes / 60)
+      const adjustedMinute = totalMinutes % 60
 
-      // Adjust hour and minute if they exceed their respective limits
-      const adjustedHour = hour < 0 ? 24 + hour : hour % 24
-      const adjustedMinute = minute < 0 ? 60 + minute : minute % 60
+      const totalHours = now.getHours() + h + extraHours
+      const adjustedHour = totalHours % 24
 
       // Format the time with leading zeros if necessary
-      const formattedHour = String(adjustedHour).padStart(2, '0')
-      const formattedMinute = String(adjustedMinute).padStart(2, '0')
+      const formattedHour = String(adjustedHour < 0 ? 24 + adjustedHour : adjustedHour).padStart(
+        2,
+        '0'
+      )
+      const formattedMinute = String(
+        adjustedMinute < 0 ? 60 + adjustedMinute : adjustedMinute
+      ).padStart(2, '0')
 
       return `${formattedHour}:${formattedMinute}`
     }

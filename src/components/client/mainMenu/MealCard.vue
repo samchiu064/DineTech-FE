@@ -1,13 +1,12 @@
 <template>
   <div
-    v-bind="$attrs"
     class="w-[232px] p-4 flex flex-col gap-y-2 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] relative transition-colors duration-50"
     :class="styleList"
     @click="handleClick"
   >
     <div
       class="w-[201px] h-[193px] rounded-md bg-center bg-cover"
-      :style="{ backgroundImage: `url(${meal.img})` }"
+      :style="{ backgroundImage: `url(${meal.image})` }"
     ></div>
     <p class="text-lg truncate">{{ meal.name }}</p>
     <div class="flex items-center justify-start gap-x-2">
@@ -20,13 +19,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState, mapActions } from 'pinia'
+import { mapState } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
-import type { TempMeal } from '@/types/mealTypes'
 
 export default defineComponent({
-  inheritAttrs: false,
   props: {
     meal: {
       type: Object,
@@ -58,12 +55,9 @@ export default defineComponent({
     }
   },
   methods: {
-    ...mapActions(useClientStore, ['setTempMeal']),
     handleClick() {
       if (this.isDisabled) return
-
-      this.setTempMeal(this.meal as TempMeal)
-      this.$emit('click')
+      this.$emit('click:card')
     }
   }
 })
