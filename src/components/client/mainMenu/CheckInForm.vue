@@ -95,12 +95,13 @@
         >
           取消用餐
         </button>
-        <button
+        <client-button
+          :isLoading="buttonIsLoading"
           type="submit"
           class="block w-[70%] py-3 bg-primary-orange text-secondary-white rounded font-bold"
         >
           送出
-        </button>
+        </client-button>
       </div>
       <div class="flex flex-col">
         <h4>🎯 用餐須知</h4>
@@ -127,20 +128,23 @@ import { defineComponent } from 'vue'
 import { useClientStore } from '@/stores/clientStore'
 import { useStatusStore } from '@/stores/statusStore'
 import Loading from 'vue-loading-overlay'
+import ClientButton from '@/components/client/ClientButton.vue'
 import 'vue-loading-overlay/dist/css/index.css'
 import { mapWritableState, mapActions } from 'pinia'
 
 export default defineComponent({
   inheritAttrs: false,
   components: {
-    Loading
+    Loading,
+    ClientButton
   },
   data() {
     return {
       form: {
         table: 1,
         people: 1
-      }
+      },
+      buttonIsLoading: false
     }
   },
   computed: {
@@ -150,9 +154,9 @@ export default defineComponent({
     ...mapActions(useClientStore, ['checkIn']),
     // 送出表單
     async submitForm() {
-      this.isLoading = true
-      this.checkIn(this.form)
-      this.isLoading = false
+      this.buttonIsLoading = true
+      await this.checkIn(this.form)
+      this.buttonIsLoading = false
     },
     // 回到進入頁
     backToLanding() {

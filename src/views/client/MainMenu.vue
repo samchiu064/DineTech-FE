@@ -1,5 +1,16 @@
 <template>
   <div class="bg-primary-bg h-screen w-screen overflow-hidden">
+    <Loading
+      v-model:active="isLoading"
+      :can-cancel="true"
+      :is-full-page="true"
+      :height="128"
+      :width="128"
+      loader="spinner"
+      color="#FF9900"
+      background-color="#000"
+      :opacity="0.5"
+    />
     <MenuHeader @changeCategory="setMenu" />
     <div class="flex justify-between h-[calc(100%-80px)]">
       <fade-transition>
@@ -28,8 +39,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState, mapActions } from 'pinia'
+import { mapState, mapWritableState, mapActions } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
+import { useStatusStore } from '@/stores/statusStore'
 import CheckInForm from '@/components/client/mainMenu/CheckInForm.vue'
 import MenuHeader from '@/components/client/mainMenu/MenuHeader.vue'
 import MenuSidebar from '@/components/client/mainMenu/MenuSidebar.vue'
@@ -38,6 +50,7 @@ import { apiGetMenu, apiGetTopping } from '@/apis/client'
 import type { IMeal } from '@/interfaces'
 import MealModal from '@/components/client/mainMenu/MealModal.vue'
 import FadeTransition from '@/components/client/FadeTransition.vue'
+import Loading from 'vue-loading-overlay'
 
 export default defineComponent({
   components: {
@@ -46,7 +59,8 @@ export default defineComponent({
     MenuSidebar,
     MealCard,
     MealModal,
-    FadeTransition
+    FadeTransition,
+    Loading
   },
   data() {
     return {
@@ -56,6 +70,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useClientStore, ['isCheckIn', 'tempCart']),
+    ...mapWritableState(useStatusStore, ['isLoading'])
   },
   methods: {
     ...mapActions(useClientStore, ['setTempMeal', 'setTempToppings']),
@@ -90,6 +105,8 @@ export default defineComponent({
       }
     },
     async openMealModal(type: string, id?: string) {
+      this.isLoading = true
+
       try {
         let meal
         if (type === 'edit') {
@@ -104,6 +121,8 @@ export default defineComponent({
         await this.prepareMealModal(meal, type)
       } catch (error) {
         console.error('Failed to open meal modal:', error)
+      } finally {
+        this.isLoading = false
       }
     },
     async prepareMealModal(meal: IMeal, type: string) {

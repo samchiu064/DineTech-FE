@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
-export const useStatusStore =  defineStore('status', {
+export const useStatusStore = defineStore('status', {
   state: () => ({
-    isLoading: false,
-  }),
-});
+    isLoading: false
+  })
+})
