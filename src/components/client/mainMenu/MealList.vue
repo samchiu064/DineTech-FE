@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="meal.quantity > 0"
-    class="flex justify-between gap-x-1 py-1.5 px-2 bg-gray-e9 rounded-md"
+    class="flex justify-between gap-x-1 py-1.5 px-2 bg-gray-e9 rounded-md cursor-pointer"
     @click="handleClick"
   >
     <div class="flex flex-col max-w-[43%]">

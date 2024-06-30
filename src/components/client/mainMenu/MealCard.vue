@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[232px] p-4 flex flex-col gap-y-2 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] relative transition-colors duration-50"
+    class="w-[232px] p-4 flex flex-col gap-y-2 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] relative transition-colors duration-50 cursor-pointer"
     :class="styleList"
     @click="handleClick"
   >
