@@ -15,7 +15,7 @@
     <div class="flex justify-between h-[calc(100%-80px)]">
       <fade-transition>
         <main v-show="menu.length > 1" class="px-12 py-4 overflow-auto">
-          <div class="flex flex-wrap items-center gap-6">
+          <div class="flex flex-wrap items-center gap-4 xl:gap-6">
             <MealCard
               v-for="meal in menu"
               :key="meal._id"
