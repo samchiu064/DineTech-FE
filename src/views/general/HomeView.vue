@@ -28,7 +28,7 @@
           alt="DineTech 宣傳橫幅"
         />
       </div>
-      <div class="reveal-content flex flex-col items-center relative py-6 md:py-0 xl:py-10">
+      <div class="reveal-content flex flex-col items-center relative py-6 md:py-0">
         <span class="text-sm text-gray-9f mt-auto my-4">往下滾動查看更多</span>
         <a href="#features" class="hover:opacity-90">
           <span
