@@ -3,7 +3,7 @@ import type { AxiosResponse } from 'axios'
 import type { IGuest, IOrder, IFeedback } from '@/interfaces'
 
 const clientRequest = axios.create({
-  baseURL: `${import.meta.env.VITE_APP_API}/`
+  baseURL: import.meta.env.VITE_APP_API,
 })
 
 export const apiGetMenu = async ({

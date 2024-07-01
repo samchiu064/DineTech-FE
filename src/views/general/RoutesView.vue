@@ -87,7 +87,7 @@ export default defineComponent({
           name: '錯誤頁面',
           role: '共用',
           path: '/:pathMatch(.*)*',
-          url: `${baseUrl}/error/404'`
+          url: `${baseUrl}/error/404`
         }
       ],
       client: [
@@ -95,25 +95,25 @@ export default defineComponent({
           name: '系統展示 - 進入頁',
           role: '顧客端',
           path: '/client',
-          url: `${baseUrl}/client'`
+          url: `${baseUrl}/client`
         },
         {
           name: '系統展示 - 主選單',
           role: '顧客端',
           path: '/client/main-menu',
-          url: `${baseUrl}/client/main-menu'`
+          url: `${baseUrl}/client/main-menu`
         },
         {
           name: '系統展示 - 今日訂單明細',
           role: '顧客端',
           path: '/client/today-orders',
-          url: `${baseUrl}/client/today-orders'`
+          url: `${baseUrl}/client/today-orders`
         },
         {
           name: '系統展示 - 意見回饋',
           role: '顧客端',
           path: '/client/feedback',
-          url: `${baseUrl}/client/feedback'`
+          url: `${baseUrl}/client/feedback`
         }
       ]
     }
