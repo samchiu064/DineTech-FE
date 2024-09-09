@@ -22,6 +22,9 @@ const clientRoutes: RouteRecordRaw = {
       component: () => import('@/views/client/LandingView.vue'),
       meta: {
         title: '莉莉貝拉維塔義式餐廳'
+      },
+      beforeEnter: () => {
+        sessionStorage.clear()
       }
     },
     {
@@ -48,12 +51,12 @@ const clientRoutes: RouteRecordRaw = {
         title: '意見回饋'
       },
       beforeEnter: (to, from, next) => {
-        const store = useClientStore();
-    
+        const store = useClientStore()
+
         if (!store.guestId) {
-          next('/client');
+          next('/client')
         } else {
-          next();
+          next()
         }
       }
     }
