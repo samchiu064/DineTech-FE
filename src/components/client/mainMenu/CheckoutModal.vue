@@ -4,7 +4,7 @@
       <div
         class="flex flex-col items-center gap-y-4 p-12 w-[730px] bg-secondary-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.1)]"
       >
-        <p class="text-2xl font-bold">結帳請至櫃台</p>
+        <p class="text-2xl font-bold">結帳請至櫃台，或點擊下方自助繳費按鈕</p>
         <p class="flex items-center gap-x-4">
           <span class="text-xl">今日消費金額為</span>
           <span class="text-3.5xl font-black text-primary-blue">$ {{ dollar }}</span>
@@ -14,18 +14,22 @@
           <br />
           再次感謝您的蒞臨，期待您的下次光臨！
         </p>
-        <p class="flex items-center gap-x-6 mt-2">
+        <p class="flex items-center gap-x-2 mt-2">
           <span>本店提供：</span>
-          <span
-            class="before:block before:absolute before:-inset-1 before:rounded-full before:bg-primary-blue relative inline-block px-4"
-          >
-            <span class="relative text-white">現金支付</span>
-          </span>
+          <span class="bg-primary-blue text-white py-1 px-2 text-sm rounded-full">現金支付</span>
+          <span class="bg-primary-blue text-white py-1 px-2 text-sm rounded-full">信用卡支付</span>
         </p>
-        <div class="flex gap-x-4 w-full">
+        <div class="flex gap-x-4 w-full mt-3">
           <button
             type="button"
-            class="block w-full py-3 bg-primary-orange text-secondary-white mt-4 rounded-md"
+            class="w-1/2 bg-primary-blue text-white rounded-md"
+            @click="checkoutOrder"
+          >
+            開啟自助繳費視窗
+          </button>
+          <button
+            type="button"
+            class="w-1/2 py-3 bg-primary-orange text-secondary-white rounded-md"
             @click="toFeedbackPage"
           >
             填寫意見回饋
@@ -42,11 +46,12 @@ import modalMixin from '@/mixins/modalMixin'
 import { mapState } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
+import { apiCheckoutOrder } from '@/apis/client'
 
 export default defineComponent({
   mixins: [modalMixin],
   computed: {
-    ...mapState(useClientStore, ['orderTotal']),
+    ...mapState(useClientStore, ['orderTotal', 'guestId']),
     dollar() {
       return formatPriceToTWD(this.orderTotal)
     }
@@ -54,6 +59,19 @@ export default defineComponent({
   methods: {
     toFeedbackPage() {
       this.$router.push({ path: '/client/feedback' })
+    },
+    async checkoutOrder() {
+      const payload = {
+        guestId: this.guestId,
+        total: this.orderTotal
+      }
+
+      try {
+        const result = await apiCheckoutOrder(payload)
+        console.log(result)
+      } catch (err) {
+        console.error(err)
+      }
     }
   }
 })
