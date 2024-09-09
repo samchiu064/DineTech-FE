@@ -60,12 +60,13 @@
           </p>
         </div>
         <div class="mt-6 flex justify-center">
-          <button
+          <client-button
+            :isLoading="isLoading"
             @click="submitForm"
             class="block w-full justify-center text-white bg-primary-orange hover:opacity-90 font-medium rounded-lg text-lg py-2.5"
           >
             確定
-          </button>
+          </client-button>
         </div>
       </div>
     </div>
@@ -77,10 +78,15 @@ import { defineComponent } from 'vue'
 import { apiCreateFeedback } from '@/apis/client'
 import { useClientStore } from '@/stores/clientStore'
 import { mapState, mapActions } from 'pinia'
+import ClientButton from '@/components/client/ClientButton.vue'
 
 export default defineComponent({
+  components: {
+    ClientButton
+  },
   data() {
     return {
+      isLoading: false,
       isOpen: false,
       form: {
         guestId: '',
@@ -146,11 +152,16 @@ export default defineComponent({
       this.isOpen = false
     },
     async submitForm() {
+      this.isLoading = true
+
       try {
         await apiCreateFeedback(this.form)
       } catch (error) {
         console.error(error)
+      } finally {
+        this.isLoading = false
       }
+
       this.resetState()
       this.closeModal()
       this.$router.push({ path: '/client' })
