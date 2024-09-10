@@ -2,7 +2,7 @@
 
 專為小型餐飲業者設計的 iPad POS 點餐系統，網站包含企業形象官網，並提供了虛擬餐廳「莉莉貝拉維塔義式餐廳」的系統展示頁面。
 
-關鍵字：Vue, Vite, Pinia, Tailwind CSS, TypeScript, POS, PWA, AWS Amplify
+關鍵字：Vue, Vite, Pinia, Tailwind CSS, TypeScript, POS, PWA, AWS Amplify, 金流串接
 
 <p align="center">
   <a href="https://main.d1i05uiq01rayp.amplifyapp.com/" ><img src="src/assets/images/readme/readme-home.png" alt="landing page"></a>
