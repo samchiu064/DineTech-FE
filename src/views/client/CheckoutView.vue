@@ -75,7 +75,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState } from 'pinia'
 import { useClientStore } from '@/stores/clientStore'
 import { formatPriceToTWD } from '@/utils'
 import { apiGenerateTradeInfo } from '@/apis/client'
@@ -87,6 +86,7 @@ export default defineComponent({
   },
   data() {
     return {
+      clientStore: useClientStore(),
       paymentForm: {
         MerchantID: '',
         TradeInfo: '',
@@ -97,7 +97,12 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapState(useClientStore, ['orderTotal', 'guestId']),
+    guestId() {
+      return this.clientStore.guestId
+    },
+    orderTotal() {
+      return this.clientStore.orderTotal
+    },
     totalPrice() {
       return formatPriceToTWD(this.orderTotal)
     }
