@@ -27,12 +27,10 @@
       </div>
     </div>
   </fade-transition>
-  <CheckoutModal ref="checkoutModal" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import CheckoutModal from './CheckoutModal.vue'
 import modalMixin from '@/mixins/modalMixin'
 import { apiGetOrder } from '@/apis/client'
 import { mapState, mapActions } from 'pinia'
@@ -43,7 +41,6 @@ import type { IOrder, ITodayOrder } from '@/interfaces'
 export default defineComponent({
   inheritAttrs: false,
   components: {
-    CheckoutModal,
     FadeTransition
   },
   data() {
@@ -54,12 +51,18 @@ export default defineComponent({
   mixins: [modalMixin],
   computed: {
     ...mapState(useClientStore, ['guestId']),
+    /**
+     * 總計金額
+     */
     totalPrice() {
       return this.orderList.reduce((acc: number, cur: IOrder) => acc + cur.total, 0)
     }
   },
   methods: {
     ...mapActions(useClientStore, ['setOrderTotal']),
+    /**
+     * 結帳
+     */
     async checkout() {
       try {
         const { data: origin } = await apiGetOrder(this.guestId)
@@ -71,7 +74,8 @@ export default defineComponent({
       }
 
       this.close()
-      ;(this.$refs.checkoutModal as typeof CheckoutModal).open()
+      // 跳轉到結帳頁面
+      this.$router.push({ path: '/client/checkout' })
     }
   }
 })

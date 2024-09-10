@@ -114,6 +114,18 @@ export default defineComponent({
           role: '顧客端',
           path: '/client/feedback',
           url: `${baseUrl}/client/feedback`
+        },
+        {
+          name: '系統展示 - 結帳頁',
+          role: '顧客端',
+          path: '/client/checkout',
+          url: `${baseUrl}/client/checkout`
+        },
+        {
+          name: '系統展示 - 結帳成功',
+          role: '顧客端',
+          path: '/client/checkout/success',
+          url: `${baseUrl}/client/checkout/success`
         }
       ]
     }

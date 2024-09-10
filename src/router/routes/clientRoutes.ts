@@ -44,6 +44,21 @@ const clientRoutes: RouteRecordRaw = {
       }
     },
     {
+      path: 'checkout',
+      name: 'clientCheckout',
+      component: () => import('@/views/client/CheckoutView.vue'),
+      children: [
+        {
+          path: 'success',
+          name: 'clientCheckoutSuccess',
+          component: () => import('@/views/client/CheckoutView.vue'),
+        }
+      ],
+      meta: {
+        title: '結帳頁面'
+      }
+    },
+    {
       path: 'feedback',
       name: 'clientFeedback',
       component: () => import('@/views/client/FeedbackView.vue'),

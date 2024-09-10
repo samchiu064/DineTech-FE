@@ -34,7 +34,7 @@ export const apiCreateOrder = (payload: IOrder): Promise<AxiosResponse> =>
 export const apiCreateFeedback = (payload: IFeedback): Promise<AxiosResponse> =>
   clientRequest.post('feedbacks', payload)
 
-export const apiCheckoutOrder = (payload: {
+export const apiGenerateTradeInfo = (payload: {
   guestId: string
   total: number
 }): Promise<AxiosResponse> => clientRequest.post('checkout', payload)
