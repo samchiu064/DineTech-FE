@@ -6,10 +6,9 @@
       :is-full-page="true"
       :height="128"
       :width="128"
-      loader="spinner"
+      loader="dots"
       color="#FF9900"
-      background-color="#000"
-      :opacity="0.5"
+      :opacity="0"
     />
     <MenuHeader @changeCategory="setMenu" />
     <div class="flex justify-between h-[calc(100%-80px)]">

@@ -9,11 +9,6 @@
     >
       <span class="material-icons-outlined text-secondary-black">menu</span>
     </button>
-    <div class="flex flex-col items-center gap-y-4">
-      <span class="material-icons-outlined text-gray-9f text-lg">inventory</span>
-      <span class="material-icons-outlined text-gray-9f text-lg">monetization_on</span>
-      <span class="material-icons-outlined text-gray-9f text-lg">shopping_cart</span>
-    </div>
   </div>
 </template>
 
